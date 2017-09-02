@@ -1,16 +1,21 @@
-const Runner = function(statsdClient, pgConnection) {
-    const statsdClient = statsdClient;
-    const pgConnection = pgConnection;
+
+/** Creates a runner, that can query statistics, transform them
+ * and send them to a statsd daemon.
+ */
+const create = function(statsdClient, pgConnection) {
+    const statsd = statsdClient;
+    const pg = pgConnection;
 
     const run = () => {
         let view = {
             viewName: "bla",
-            stats: [{
-                "bla.com.number": {
+            stats: [
+                {
+                    path: "bla.com.number",
                     type: "c",
                     field: "tablefield"
                 }
-            }]
+            ]
         }
         pgConnection.get(view, (data) => {
             send(transform(view, data))
@@ -26,14 +31,23 @@ const Runner = function(statsdClient, pgConnection) {
         let formattedStats = []
         view.stats.forEach(function(stat) {
             data.forEach((row) => {
-                if (row[stat.field])
-                formattedStats.push({
-                    metric: ""
-                })
+                let statFromTable = row[stat.field];
+                if (statFromTable && statFromTable.length) {
+                    formattedStats.push({
+                        metric: stat.path+":"+statFromTable+"|"+stat.type
+                    })
+                }
+                
             })
         });
     }
+
     return {
         run
     }
 }
+
+const Runner = {
+    create
+}
+module.exports = Runner;

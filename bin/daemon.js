@@ -1,1 +1,2 @@
-import Runner from './../src/Runner.js'
+const {Main} = require('./../src/index')
+Main.go()

@@ -1,8 +1,15 @@
-import Runner from './Runner'
+const {Runner} = require('./Runner')
 
-export const Configurator = (statsdClient, pgConnection) => {
-    return new Runner({
+const buildRunner = (statsdClient, pgConnection) => {
+    return Runner.create({
         statsdClient,
         pgConnection
     })
 }
+
+const Configurator = {
+    buildRunner
+}
+
+module.exports = Configurator
+
